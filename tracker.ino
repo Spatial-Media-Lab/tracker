@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 5, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 6, "spatialmedialab:samd:tracker");
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
