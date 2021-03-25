@@ -1,0 +1,6 @@
+{
+  "cpu": {
+    "fqbn": "spatialmedialab:samd:tracker",
+    "name": "tracker"
+  }
+}
