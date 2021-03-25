@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 6, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 7, "spatialmedialab:samd:tracker");
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -203,16 +203,16 @@ private:
   void sendControls() {
     const Quaternion q = Sensor.getCorrectedOrientation();
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 0, (q.w + 1.f) * 8191.f))
-      _hires.send(&usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 0);
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 0);
 
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 1, (q.x + 1.f) * 8191.f))
-      _hires.send(&usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 1);
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 1);
 
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 2, (q.y + 1.f) * 8191.f))
-      _hires.send(&usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 2);
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 2);
 
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 3, (q.z + 1.f) * 8191.f))
-      _hires.send(&usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 3);
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 3);
   }
 
   void handleControlChange(uint8_t channel, uint8_t controller, uint8_t value) override {
