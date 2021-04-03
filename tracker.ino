@@ -175,6 +175,9 @@ public:
   // Config, written to EEPROM
   struct {
     uint8_t channel;
+    struct {
+      float w, x, y, z;
+    } calibration;
   } config{};
 
   void reset() {
@@ -315,6 +318,7 @@ private:
   void handleRelease() override {
     LED.setHSV(V2Color::Green, 1, 0.5);
     Sensor.finishCalibration();
+    Device.writeConfiguration(&Device.config, sizeof(Device.config));
   }
 } Button;
 
