@@ -166,7 +166,8 @@ public:
     metadata.description = "Orientation Sensor";
     metadata.home        = "https://spatialmedialab.org/#tracker/";
 
-    system.download = "https://spatial-media-lab.github.io/download/";
+    system.ports.announce = 0;
+    system.download       = "https://spatial-media-lab.github.io/download/";
 
     configuration = {.magic{0x9e020000 | usb.pid}, .size{sizeof(config)}, .data{&config}};
   }
