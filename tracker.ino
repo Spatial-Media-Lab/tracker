@@ -342,6 +342,10 @@ private:
 
   void exportSystem(JsonObject json) override {
     json["temperature"] = truncf(Sensor.readTemperature() * 10.f) / 10.f;
+    json["calibW"] = truncf(config.calibration.w * 1000.0f) / 1000.0f;
+    json["calibX"] = truncf(config.calibration.x * 1000.0f) / 1000.0f;
+    json["calibY"] = truncf(config.calibration.y * 1000.0f) / 1000.0f;
+    json["calibZ"] = truncf(config.calibration.z * 1000.0f) / 1000.0f;
   }
 } Device;
 
@@ -400,6 +404,12 @@ private:
     Device.setLEDIdle();
     LED.splashHSV(1.0, 2, V2Color::Green, 1, 0.5);
     Sensor.finishCalibration();
+
+    auto calibration = Sensor.getCalibration();
+    Device.config.calibration.w = calibration.w;
+    Device.config.calibration.x = calibration.x;
+    Device.config.calibration.y = calibration.y;
+    Device.config.calibration.z = calibration.z;
     Device.writeConfiguration(&Device.config, sizeof(Device.config));
   }
 } Button;
@@ -423,6 +433,12 @@ void setup() {
   // Uses delay(), needs to be after Device.begin();
   Sensor.begin();
   Device.reset();
+
+  Sensor.setCalibration(Quaternion{
+        Device.config.calibration.w,
+        Device.config.calibration.x,
+        Device.config.calibration.y,
+        Device.config.calibration.z});
 }
 
 void loop() {
