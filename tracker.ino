@@ -359,9 +359,28 @@ public:
 private:
   const V2Buttons::Config _config{.click_usec{150 * 1000}, .hold_usec{300 * 1000}};
 
+  bool isRainbow = false;
+  
   void handleClick(uint8_t count) override {
-    LED.setHSV(V2Color::Red, 1, 0.5);
-    Sensor.resetOrientation();
+    if (count == 0)
+    {
+        LED.splashHSV(0.8, V2Color::Red, 1, 0.5);
+        Sensor.resetOrientation();
+    } 
+    else
+    {
+        if (isRainbow)
+        {
+            LED.rainbow(0, 1.0f);
+            isRainbow = false;
+        }
+        else 
+        {
+            LED.rainbow(1, 1.0f);
+            isRainbow = true;
+        }
+    }
+    
   }
 
   void handleHold(uint8_t count) override {
