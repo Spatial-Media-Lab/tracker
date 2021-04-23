@@ -205,10 +205,18 @@ public:
     } calibration;
   } config{};
 
+
+   void setLEDIdle()
+  {
+    LED.setHSV(0, V2Color::Blue, 1, 0.5);
+    LED.setHSV(1, V2Color::Red, 1, 0.5);    
+  }
+
   void reset() {
     digitalWrite(PIN_LED_ONBOARD, LOW);
     LED.reset();
-    LED.setHSV(V2Color::Red, 1, 0.5);
+
+    setLEDIdle();
   }
 
   void allNotesOff() {
@@ -389,7 +397,8 @@ private:
   }
 
   void handleRelease() override {
-    LED.setHSV(V2Color::Green, 1, 0.5);
+    Device.setLEDIdle();
+    LED.splashHSV(1.0, 2, V2Color::Green, 1, 0.5);
     Sensor.finishCalibration();
     Device.writeConfiguration(&Device.config, sizeof(Device.config));
   }
