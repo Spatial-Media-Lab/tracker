@@ -15,6 +15,12 @@ V2DEVICE_METADATA("org.spatialmedialab.tracker", 7, "spatialmedialab:samd:tracke
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
+struct TaitBryan {
+    float yaw;
+    float pitch;
+    float roll;    
+};
+
 class Quaternion {
 public:
   float w{1};
@@ -57,6 +63,25 @@ public:
     x *= factor;
     y *= factor;
     z *= factor;
+  }
+
+  TaitBryan toTaitBryanAngles() const {
+    const float ysqr = y * y;
+    
+    float t0 = 2.0f * (w * z + x * y);
+    float t1 = 1.0f - 2.0f * (ysqr + z * z);
+    const float yaw = std::atan2 (t0, t1);
+    
+    t0 = 2.0f * (w * y - z * x);
+    t0 = t0 > 1.0f ? 1.0f : t0;
+    t0 = t0 < -1.0f ? -1.0f : t0;
+    const float pitch = std::asin (t0);
+    
+    t0 = 2.0f * (w * x + y * z);
+    t1 = 1.0f - 2.0f * (x * x + ysqr);
+    const float roll = std::atan2 (t0, t1);
+
+    return {yaw, pitch, roll};
   }
 };
 
@@ -217,6 +242,17 @@ private:
 
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 3, (q.z + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 3);
+
+    const TaitBryan t = q.toTaitBryanAngles();
+
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 4, (t.yaw / 1.570796327f + 1.f) * 8191.f))
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 4);
+
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 5, (t.pitch / 1.570796327f + 1.f) * 8191.f))
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 5);
+
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 6, (t.roll / 1.570796327f + 1.f) * 8191.f))
+      _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 6);
   }
 
   void handleControlChange(uint8_t channel, uint8_t controller, uint8_t value) override {
@@ -259,6 +295,24 @@ private:
     json_orientation_z["number"]    = V2MIDI::CC::GeneralPurpose1 + 3;
     json_orientation_z["value"]     = _hires.getMSB(V2MIDI::CC::GeneralPurpose1 + 3);
     json_orientation_z["valueFine"] = _hires.getLSB(V2MIDI::CC::GeneralPurpose1 + 3);
+
+    JsonObject json_orientation_yaw   = json_controllers.createNestedObject();
+    json_orientation_yaw["name"]      = "Yaw";
+    json_orientation_yaw["number"]    = V2MIDI::CC::GeneralPurpose1 + 4;
+    json_orientation_yaw["value"]     = _hires.getMSB(V2MIDI::CC::GeneralPurpose1 + 4);
+    json_orientation_yaw["valueFine"] = _hires.getLSB(V2MIDI::CC::GeneralPurpose1 + 4);
+
+    JsonObject json_orientation_pitch   = json_controllers.createNestedObject();
+    json_orientation_pitch["name"]      = "Pitch";
+    json_orientation_pitch["number"]    = V2MIDI::CC::GeneralPurpose1 + 5;
+    json_orientation_pitch["value"]     = _hires.getMSB(V2MIDI::CC::GeneralPurpose1 + 5);
+    json_orientation_pitch["valueFine"] = _hires.getLSB(V2MIDI::CC::GeneralPurpose1 + 5);
+
+    JsonObject json_orientation_roll   = json_controllers.createNestedObject();
+    json_orientation_roll["name"]      = "Roll";
+    json_orientation_roll["number"]    = V2MIDI::CC::GeneralPurpose1 + 6;
+    json_orientation_roll["value"]     = _hires.getMSB(V2MIDI::CC::GeneralPurpose1 + 6);
+    json_orientation_roll["valueFine"] = _hires.getLSB(V2MIDI::CC::GeneralPurpose1 + 6);
   }
 
   void importConfiguration(JsonObject json) override {
