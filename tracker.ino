@@ -193,7 +193,7 @@ public:
   }
 
   void loop() {
-    if ((unsigned long)(micros() - _usec) < 50 * 1000)
+    if ((unsigned long)(micros() - _usec) < 10 * 1000) // 10 * 1000 -> 100Hz
       return;
 
     sendControls();
