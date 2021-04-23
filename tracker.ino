@@ -18,7 +18,7 @@ static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 struct TaitBryan {
     float yaw;
     float pitch;
-    float roll;    
+    float roll;
 };
 
 class Quaternion {
@@ -67,16 +67,16 @@ public:
 
   TaitBryan toTaitBryanAngles() const {
     const float ysqr = y * y;
-    
+
     float t0 = 2.0f * (w * z + x * y);
     float t1 = 1.0f - 2.0f * (ysqr + z * z);
     const float yaw = std::atan2 (t0, t1);
-    
+
     t0 = 2.0f * (w * y - z * x);
     t0 = t0 > 1.0f ? 1.0f : t0;
     t0 = t0 < -1.0f ? -1.0f : t0;
     const float pitch = std::asin (t0);
-    
+
     t0 = 2.0f * (w * x + y * z);
     t1 = 1.0f - 2.0f * (x * x + ysqr);
     const float roll = std::atan2 (t0, t1);
@@ -209,7 +209,7 @@ public:
    void setLEDIdle()
   {
     LED.setHSV(0, V2Color::Blue, 1, 0.5);
-    LED.setHSV(1, V2Color::Red, 1, 0.5);    
+    LED.setHSV(1, V2Color::Red, 1, 0.5);
   }
 
   void reset() {
@@ -372,13 +372,13 @@ private:
   const V2Buttons::Config _config{.click_usec{150 * 1000}, .hold_usec{300 * 1000}};
 
   bool isRainbow = false;
-  
+
   void handleClick(uint8_t count) override {
     if (count == 0)
     {
         LED.splashHSV(0.8, V2Color::Red, 1, 0.5);
         Sensor.resetOrientation();
-    } 
+    }
     else
     {
         if (isRainbow)
@@ -386,13 +386,13 @@ private:
             LED.rainbow(0, 1.0f);
             isRainbow = false;
         }
-        else 
+        else
         {
             LED.rainbow(1, 1.0f);
             isRainbow = true;
         }
     }
-    
+
   }
 
   void handleHold(uint8_t count) override {
