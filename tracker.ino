@@ -253,13 +253,13 @@ private:
 
     const TaitBryan t = q.toTaitBryanAngles();
 
-    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 4, (t.yaw / 1.570796327f + 1.f) * 8191.f))
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 4, (t.yaw / 3.141592654f + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 4);
 
-    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 5, (t.pitch / 1.570796327f + 1.f) * 8191.f))
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 5, (t.pitch / 3.141592654f + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 5);
 
-    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 6, (t.roll / 1.570796327f + 1.f) * 8191.f))
+    if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 6, (t.roll / 3.141592654f + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 6);
   }
 
