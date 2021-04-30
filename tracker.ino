@@ -262,12 +262,18 @@ private:
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 6, (t.roll / 3.141592654f + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 6);
   }
-
   void handleControlChange(uint8_t channel, uint8_t controller, uint8_t value) override {
+
     switch (controller) {
       case V2MIDI::CC::AllSoundOff:
       case V2MIDI::CC::AllNotesOff:
         allNotesOff();
+        break;
+
+      case V2MIDI::CC::Controller29:
+        auto h = value * 360 / 127;
+        LED.setHSV(0, h, 1, 0.5);
+        LED.setHSV(1, h, 1, 0.5);
         break;
     }
   }
