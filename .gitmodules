@@ -1,24 +1,36 @@
 [submodule "dependencies/V2LED"]
 	path = dependencies/V2LED
 	url = https://github.com/versioduo/V2LED.git
+        branch = main
 [submodule "dependencies/V2Cryptography"]
 	path = dependencies/V2Cryptography
 	url = https://github.com/versioduo/V2Cryptography.git
+        branch = main
 [submodule "dependencies/V2Memory"]
 	path = dependencies/V2Memory
 	url = https://github.com/versioduo/V2Memory.git
+        branch = main
 [submodule "dependencies/V2Color"]
 	path = dependencies/V2Color
 	url = https://github.com/versioduo/V2Color.git
+        branch = main
 [submodule "dependencies/V2BNO055"]
 	path = dependencies/V2BNO055
 	url = https://github.com/versioduo/V2BNO055.git
+        branch = main
 [submodule "dependencies/V2Device"]
 	path = dependencies/V2Device
 	url = https://github.com/versioduo/V2Device.git
+        branch = main
 [submodule "dependencies/V2Buttons"]
 	path = dependencies/V2Buttons
 	url = https://github.com/versioduo/V2Buttons.git
+        branch = main
 [submodule "dependencies/V2MIDI"]
 	path = dependencies/V2MIDI
 	url = https://github.com/versioduo/V2MIDI.git
+        branch = main
+[submodule "dependencies/V2Power"]
+	path = dependencies/V2Power
+	url = git@github.com:versioduo/V2Power
+        branch = main

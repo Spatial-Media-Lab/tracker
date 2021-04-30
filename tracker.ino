@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 9, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 10, "spatialmedialab:samd:tracker");
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -206,7 +206,7 @@ public:
   } config{};
 
 
-   void setLEDIdle()
+  void setLEDIdle()
   {
     LED.setHSV(0, V2Color::Blue, 1, 0.5);
     LED.setHSV(1, V2Color::Red, 1, 0.5);
@@ -225,17 +225,17 @@ public:
     sendControls();
   }
 
-  void loop() {
+private:
+  V2MIDI::CC::HighResolution<V2MIDI::CC::GeneralPurpose1, 4 + 3> _hires;
+  long _usec{};
+
+  void handleLoop() override {
     if ((unsigned long)(micros() - _usec) < 10 * 1000) // 10 * 1000 -> 100Hz
       return;
 
     sendControls();
     _usec = micros();
   }
-
-private:
-  V2MIDI::CC::HighResolution<V2MIDI::CC::GeneralPurpose1, 4> _hires;
-  long _usec{};
 
   void sendControls() {
     const Quaternion q = Sensor.getCorrectedOrientation();
@@ -262,8 +262,8 @@ private:
     if (_hires.set(V2MIDI::CC::GeneralPurpose1 + 6, (t.roll / 3.141592654f + 1.f) * 8191.f))
       _hires.send(this, &usb.midi, config.channel, V2MIDI::CC::GeneralPurpose1 + 6);
   }
-  void handleControlChange(uint8_t channel, uint8_t controller, uint8_t value) override {
 
+  void handleControlChange(uint8_t channel, uint8_t controller, uint8_t value) override {
     switch (controller) {
       case V2MIDI::CC::AllSoundOff:
       case V2MIDI::CC::AllNotesOff:
@@ -327,6 +327,13 @@ private:
     json_orientation_roll["number"]    = V2MIDI::CC::GeneralPurpose1 + 6;
     json_orientation_roll["value"]     = _hires.getMSB(V2MIDI::CC::GeneralPurpose1 + 6);
     json_orientation_roll["valueFine"] = _hires.getLSB(V2MIDI::CC::GeneralPurpose1 + 6);
+  }
+
+  void exportInput(JsonObject json) override {
+    JsonArray json_controllers = json.createNestedArray("controllers");
+    JsonObject json_hue        = json_controllers.createNestedObject();
+    json_hue["name"]           = "LED Hue";
+    json_hue["number"]         = V2MIDI::CC::Controller29;
   }
 
   void importConfiguration(JsonObject json) override {
@@ -416,7 +423,7 @@ private:
     Device.config.calibration.x = calibration.x;
     Device.config.calibration.y = calibration.y;
     Device.config.calibration.z = calibration.z;
-    Device.writeConfiguration(&Device.config, sizeof(Device.config));
+    Device.writeConfiguration();
   }
 } Button;
 
