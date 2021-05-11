@@ -203,13 +203,16 @@ public:
     struct {
       float w, x, y, z;
     } calibration;
+    struct {
+        float hue, saturation, brightness;
+    } ledcolor;
   } config{};
 
 
   void setLEDIdle()
   {
-    LED.setHSV(0, V2Color::Blue, 1, 0.5);
-    LED.setHSV(1, V2Color::Red, 1, 0.5);
+    LED.setHSV(0, config.ledcolor.hue, config.ledcolor.saturation, config.ledcolor.brightness);
+    LED.setHSV(1, config.ledcolor.hue, config.ledcolor.saturation, config.ledcolor.brightness);
   }
 
   void reset() {
@@ -271,9 +274,16 @@ private:
         break;
 
       case V2MIDI::CC::Controller29:
-        auto h = value * 360 / 127;
-        LED.setHSV(0, h, 1, 0.5);
-        LED.setHSV(1, h, 1, 0.5);
+        config.ledcolor.hue = float(value) * 360 / 127;
+        setLEDIdle();
+        break;
+      case V2MIDI::CC::Controller30:
+        config.ledcolor.saturation = float(value) / 127;
+        setLEDIdle();
+        break;
+      case V2MIDI::CC::Controller31:
+        config.ledcolor.brightness = float(value) / 127;
+        setLEDIdle();
         break;
     }
   }
@@ -346,11 +356,28 @@ private:
       else
         config.channel = channel - 1;
     }
+    if (!json["hue"].isNull()) {
+      config.ledcolor.hue = json["hue"];
+    }
+    if (!json["saturation"].isNull()) {
+      config.ledcolor.saturation = json["saturation"];
+    }
+    if (!json["brightness"].isNull()) {
+      config.ledcolor.brightness = json["brightness"];
+    }
+
+    setLEDIdle();
   }
 
   void exportConfiguration(JsonObject json) override {
     json["#channel"] = "The MIDI channel to send control values and notes";
     json["channel"]  = config.channel + 1;
+    json["#hue"] = "The LED hue value";
+    json["hue"]  = config.ledcolor.hue;
+    json["#saturation"] = "The LED saturation";
+    json["saturation"]  = config.ledcolor.saturation;
+    json["#brightness"] = "The LED brightness";
+    json["brightness"]  = config.ledcolor.brightness;
   }
 
   void exportSystem(JsonObject json) override {
@@ -359,6 +386,9 @@ private:
     json["calibX"] = truncf(config.calibration.x * 1000.0f) / 1000.0f;
     json["calibY"] = truncf(config.calibration.y * 1000.0f) / 1000.0f;
     json["calibZ"] = truncf(config.calibration.z * 1000.0f) / 1000.0f;
+    json["hue"] = truncf(config.ledcolor.hue * 10.f) / 10.f;
+    json["saturation"] = truncf(config.ledcolor.saturation * 10.f) / 10.f;
+    json["brightness"] = truncf(config.ledcolor.brightness * 10.f) / 10.f;
   }
 } Device;
 
