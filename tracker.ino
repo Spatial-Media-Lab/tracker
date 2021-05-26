@@ -274,15 +274,15 @@ private:
         break;
 
       case V2MIDI::CC::Controller29:
-        config.ledcolor.hue = float(value) * 360 / 127;
+        config.ledcolor.hue = float(value) * 360.f / 127.f;
         setLEDIdle();
         break;
       case V2MIDI::CC::Controller30:
-        config.ledcolor.saturation = float(value) / 127;
+        config.ledcolor.saturation = float(value) / 127.f;
         setLEDIdle();
         break;
       case V2MIDI::CC::Controller31:
-        config.ledcolor.brightness = float(value) / 127;
+        config.ledcolor.brightness = float(value) / 127.f;
         setLEDIdle();
         break;
     }
@@ -341,9 +341,24 @@ private:
 
   void exportInput(JsonObject json) override {
     JsonArray json_controllers = json.createNestedArray("controllers");
-    JsonObject json_hue        = json_controllers.createNestedObject();
-    json_hue["name"]           = "LED Hue";
-    json_hue["number"]         = V2MIDI::CC::Controller29;
+    {
+      JsonObject json_controller = json_controllers.createNestedObject();
+      json_controller["name"]    = "LED Hue";
+      json_controller["number"]  = V2MIDI::CC::Controller29;
+      json_controller["value"]   = (config.ledcolor.hue / 360.f) * 127.f;
+    }
+    {
+      JsonObject json_controller = json_controllers.createNestedObject();
+      json_controller["name"]    = "LED Saturation";
+      json_controller["number"]  = V2MIDI::CC::Controller30;
+      json_controller["value"]   = config.ledcolor.saturation * 127.f;
+    }
+    {
+      JsonObject json_controller = json_controllers.createNestedObject();
+      json_controller["name"]    = "LED Brightness";
+      json_controller["number"]  = V2MIDI::CC::Controller31;
+      json_controller["value"]   = config.ledcolor.brightness * 127.f;
+    }
   }
 
   void importConfiguration(JsonObject json) override {
