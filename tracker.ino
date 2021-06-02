@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 12, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 14, "spatialmedialab:samd:tracker");
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -206,6 +206,7 @@ public:
     struct {
         float hue, saturation, brightness;
     } ledcolor;
+    bool magnetometer = true;
   } config{};
 
 
@@ -380,6 +381,9 @@ private:
     if (!json["brightness"].isNull()) {
       config.ledcolor.brightness = json["brightness"];
     }
+    if (!json["magnetometer"].isNull()) {
+      config.magnetometer = json["magnetometer"];
+    }
 
     setLEDIdle();
   }
@@ -393,6 +397,8 @@ private:
     json["saturation"]  = config.ledcolor.saturation;
     json["#brightness"] = "The LED brightness";
     json["brightness"]  = config.ledcolor.brightness;
+    json["#magnetometer"] = "Magnetometer";
+    json["magnetometer"]  = config.magnetometer;
   }
 
   void exportSystem(JsonObject json) override {
@@ -404,6 +410,7 @@ private:
     json["hue"] = truncf(config.ledcolor.hue * 10.f) / 10.f;
     json["saturation"] = truncf(config.ledcolor.saturation * 10.f) / 10.f;
     json["brightness"] = truncf(config.ledcolor.brightness * 10.f) / 10.f;
+    json["magnetometer"] = config.magnetometer;
   }
 } Device;
 
@@ -437,7 +444,7 @@ private:
         LED.splashHSV(0.8, V2Color::Red, 1, 0.5);
         Sensor.resetOrientation();
     }
-    else
+    else if (count == 1)
     {
         if (isRainbow)
         {
@@ -449,6 +456,13 @@ private:
             LED.rainbow(1, 1.0f);
             isRainbow = true;
         }
+    }
+    else if (count == 2)
+    {
+        if (Device.config.magnetometer)
+            LED.splashHSV(0.8, V2Color::Magenta, 1, 0.5);
+        else
+            LED.splashHSV(0.8, V2Color::Cyan, 1, 0.5);
     }
 
   }
@@ -489,7 +503,11 @@ void setup() {
   Device.begin();
 
   // Uses delay(), needs to be after Device.begin();
-  Sensor.begin();
+  if (Device.config.magnetometer)
+    Sensor.begin(BNO055_OPERATION_MODE_NDOF);
+  else
+    Sensor.begin(BNO055_OPERATION_MODE_IMUPLUS);
+  
   Device.reset();
 
   Sensor.setCalibration(Quaternion{
