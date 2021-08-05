@@ -1,7 +1,7 @@
 // Spatial Media Lab - tracker
 //
 // © Daniel Rudrich 2020
-// © Kay Sievers 2020
+// © Kay Sievers 2021
 
 #include <V2BNO055.h>
 #include <V2Buttons.h>
@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 15, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 16, "spatialmedialab:samd:tracker");
 
 static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -193,6 +193,7 @@ public:
 
     system.ports.announce = 0;
     system.download       = "https://spatial-media-lab.github.io/download/";
+    system.configure      = "spatial-media-lab.github.io/configure";
 
     configuration = {.magic{0x9e020000 | usb.pid}, .size{sizeof(config)}, .data{&config}};
   }
@@ -297,6 +298,19 @@ private:
     reset();
   }
 
+  void exportSettings(JsonArray json) override {
+    {
+      JsonObject json_midi = json.createNestedObject();
+      json_midi["type"]    = "midi";
+      json_midi["channel"] = "midi.channel";
+
+      // The object in the configuration record.
+      JsonObject json_configuration = json_midi.createNestedObject("configuration");
+      json_configuration["path"]    = "midi";
+      json_configuration["field"]   = "channel";
+    }
+  }
+
   void exportOutput(JsonObject json) override {
     json["channel"] = config.channel;
 
@@ -367,15 +381,20 @@ private:
   }
 
   void importConfiguration(JsonObject json) override {
-    if (!json["channel"].isNull()) {
-      uint8_t channel = json["channel"];
-      if (channel < 1)
-        config.channel = 0;
-      else if (channel > 16)
-        config.channel = 15;
-      else
-        config.channel = channel - 1;
+    JsonObject json_midi = json["midi"];
+    if (json_midi) {
+      if (!json_midi["channel"].isNull()) {
+        uint8_t channel = json_midi["channel"];
+
+        if (channel < 1)
+          config.channel = 0;
+        else if (channel > 16)
+          config.channel = 15;
+        else
+          config.channel = channel - 1;
+      }
     }
+
     if (!json["hue"].isNull()) {
       config.ledcolor.hue = json["hue"];
     }
@@ -393,8 +412,13 @@ private:
   }
 
   void exportConfiguration(JsonObject json) override {
-    json["#channel"] = "The MIDI channel to send control values and notes";
-    json["channel"]  = config.channel + 1;
+    {
+      json["#midi"]         = "The MIDI settings";
+      JsonObject json_midi  = json.createNestedObject("midi");
+      json_midi["#channel"] = "The channel to send notes and control values to";
+      json_midi["channel"]  = config.channel + 1;
+    }
+
     json["#hue"] = "The LED hue value";
     json["hue"]  = config.ledcolor.hue;
     json["#saturation"] = "The LED saturation";
@@ -496,11 +520,6 @@ void setup() {
   Wire.setClock(400000);
   Wire.setTimeout(1);
 
-  static Adafruit_USBD_WebUSB WebUSB;
-  static WEBUSB_URL_DEF(WEBUSBLandingPage, 1 /*https*/, "spatial-media-lab.github.io/configure/");
-  WebUSB.begin();
-  WebUSB.setLandingPage(&WEBUSBLandingPage);
-
   LED.begin();
   LED.setMaxBrightness(0.5);
   Button.begin();
@@ -511,7 +530,7 @@ void setup() {
     Sensor.begin(BNO055_OPERATION_MODE_NDOF);
   else
     Sensor.begin(BNO055_OPERATION_MODE_IMUPLUS);
-  
+
   Device.reset();
 
   Sensor.setCalibration(Quaternion{
