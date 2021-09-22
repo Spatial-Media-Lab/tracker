@@ -11,9 +11,9 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 17, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 18, "spatialmedialab:samd:tracker");
 
-static V2LED LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
+static V2LED::WS2812 LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
 struct TaitBryan {
     float yaw;

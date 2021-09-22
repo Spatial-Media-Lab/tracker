@@ -2,14 +2,6 @@
 	path = dependencies/V2LED
 	url = https://github.com/versioduo/V2LED.git
         branch = main
-[submodule "dependencies/V2Cryptography"]
-	path = dependencies/V2Cryptography
-	url = https://github.com/versioduo/V2Cryptography.git
-        branch = main
-[submodule "dependencies/V2Memory"]
-	path = dependencies/V2Memory
-	url = https://github.com/versioduo/V2Memory.git
-        branch = main
 [submodule "dependencies/V2Color"]
 	path = dependencies/V2Color
 	url = https://github.com/versioduo/V2Color.git
@@ -30,7 +22,7 @@
 	path = dependencies/V2MIDI
 	url = https://github.com/versioduo/V2MIDI.git
         branch = main
-[submodule "dependencies/V2Power"]
-	path = dependencies/V2Power
-	url = git@github.com:versioduo/V2Power
+[submodule "dependencies/V2Base"]
+	path = dependencies/V2Base
+	url = https://github.com/versioduo/V2Base
         branch = main
