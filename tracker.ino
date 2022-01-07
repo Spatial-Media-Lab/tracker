@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 20, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 21, "spatialmedialab:samd:tracker");
 
 static V2LED::WS2812 LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -298,36 +298,6 @@ private:
     reset();
   }
 
-  void exportSettings(JsonArray json) override {
-    {
-      JsonObject json_midi = json.createNestedObject();
-      json_midi["type"]    = "midi";
-      json_midi["channel"] = "midi.channel";
-
-      // The object in the configuration record.
-      JsonObject json_configuration = json_midi.createNestedObject("configuration");
-      json_configuration["path"]    = "midi";
-      json_configuration["field"]   = "channel";
-    }
-
-    {
-      JsonObject json_title = json.createNestedObject();
-      json_title["type"]    = "title";
-      json_title["title"]   = "Tracking";
-    }
-
-    {
-      JsonObject json_toggle = json.createNestedObject();
-      json_toggle["type"]    = "toggle";
-      json_toggle["label"] = "Sensor";
-      json_toggle["text"]  = "Magnetometer";
-
-      // The object in the configuration record.
-      JsonObject json_configuration = json_toggle.createNestedObject("configuration");
-      json_configuration["path"]    = "magnetometer";
-    }
-  }
-
   void exportOutput(JsonObject json) override {
     json["channel"] = config.channel;
 
@@ -394,6 +364,33 @@ private:
       json_controller["name"]    = "LED Brightness";
       json_controller["number"]  = V2MIDI::CC::Controller31;
       json_controller["value"]   = config.ledcolor.brightness * 127.f;
+    }
+  }
+
+  void exportSettings(JsonArray json) override {
+    {
+      JsonObject setting = json.createNestedObject();
+      setting["type"]    = "number";
+      setting["title"]   = "MIDI";
+      setting["label"]   = "Channel";
+      setting["min"]     = 1;
+      setting["max"]     = 16;
+      setting["input"]   = "select";
+      setting["path"]    = "midi/channel";
+    }
+
+    {
+      JsonObject setting = json.createNestedObject();
+      setting["type"]    = "title";
+      setting["title"]   = "Tracking";
+    }
+
+    {
+      JsonObject setting = json.createNestedObject();
+      setting["type"]    = "toggle";
+      setting["label"]   = "Sensor";
+      setting["text"]    = "Magnetometer";
+      setting["path"]    = "magnetometer";
     }
   }
 
