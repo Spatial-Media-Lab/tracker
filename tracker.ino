@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 21, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 22, "spatialmedialab:samd:tracker");
 
 static V2LED::WS2812 LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -195,7 +195,7 @@ public:
     system.download       = "https://spatial-media-lab.github.io/download";
     system.configure      = "https://spatial-media-lab.github.io/configure";
 
-    configuration = {.magic{0x9e020000 | usb.pid}, .size{sizeof(config)}, .data{&config}};
+    configuration = {.size{sizeof(config)}, .data{&config}};
   }
 
   // Config, written to EEPROM
