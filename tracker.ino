@@ -1,7 +1,7 @@
 // Spatial Media Lab - tracker
 //
 // © Daniel Rudrich 2020
-// © Kay Sievers 2021
+// © Kay Sievers 2021-2022
 
 #include <V2BNO055.h>
 #include <V2Buttons.h>
@@ -11,7 +11,7 @@
 #include <V2MIDI.h>
 #include <Wire.h>
 
-V2DEVICE_METADATA("org.spatialmedialab.tracker", 24, "spatialmedialab:samd:tracker");
+V2DEVICE_METADATA("org.spatialmedialab.tracker", 25, "spatialmedialab:samd:tracker");
 
 static V2LED::WS2812 LED(2, PIN_LED_WS2812, &sercom2, SPI_PAD_0_SCK_1, PIO_SERCOM);
 
@@ -191,7 +191,8 @@ public:
     metadata.description = "Orientation Sensor";
     metadata.home        = "https://spatialmedialab.org/tracker/";
 
-    system.ports.announce = 0;
+    usb.ports.standard   = 0;
+
     system.download       = "https://spatial-media-lab.github.io/download";
     system.configure      = "https://spatial-media-lab.github.io/configure";
 
